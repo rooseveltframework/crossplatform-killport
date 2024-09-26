@@ -1,14 +1,14 @@
 # crossplatform-killport
 
-Command line program to kill the process running on a given port in any operating system written in Node.js.
+Command line program to kill the process running on a given port in any operating system.
 
-Unlike many of the other programs out there that do this, this one works in Windows, Linux, and Mac, it is very easily installed in any OS using `npm`, and it is actively maintained by a [team](https://github.com/orgs/rooseveltframework/people) of people rather than being just some guy's project from several years ago that may or may not work.
+Unlike many of the other programs out there that do this, this one works in Windows, Linux, and Mac, it is very easily installed in any OS using `npm` because it is written in Node.js, and it is actively maintained by a [team](https://github.com/orgs/rooseveltframework/people) of people rather than being just some guy's project from several years ago that may or may not work.
 
 ## Usage
 
-Install to your system:
+First make sure [Node.js](https://nodejs.org) is installed on your system.
 
-To install to your system:
+Then, to install `crossplatform-killport` to your system:
 
 ```
 npm i -g crossplatform-killport
@@ -16,20 +16,25 @@ npm i -g crossplatform-killport
 
 Kill whatever process is using port 8080:
 
-Use from within a Node.js project:
+```
+killport 8080
+```
+
+Use via `npx` (this will allow you to use it without installing it to your system by downloading it from `npm` temporarily):
+
+```
+npx crossplatform-killport 8080
+```
+
+Use from within a Node.js project's root directory:
 
 ```
 node node_modules/.bin/crossplatform-killport/killport.js 8080
 ```
 
+Use from within Node.js code:
 
-
-```
-killport 8080
-```
-
-Or to use via `npx`:
-
-```
-npx crossplatform-killport 8080
+``` javascript
+const { spawnSync, } = require('child_process')
+spawnSync('node', ['node_modules/.bin/crossplatform-killport/killport.js', '8080', '--silent'], { env: process.env, shell: false, stdio: ['ignore', 'pipe', 'pipe'] })
 ```
