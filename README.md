@@ -31,12 +31,12 @@ npx crossplatform-killport 8080
 Use from within a Node.js project's root directory:
 
 ```
-node node_modules/.bin/crossplatform-killport/killport.js 8080
+node_modules/.bin/killport 8080
 ```
 
 Use from within Node.js code:
 
 ``` javascript
 const { spawnSync, } = require('child_process')
-spawnSync('node', ['node_modules/.bin/crossplatform-killport/killport.js', '8080', '--silent'], { env: process.env, shell: false, stdio: ['ignore', 'pipe', 'pipe'] })
+spawnSync('node_modules/.bin/killport', ['8080', '--silent'], { env: process.env, shell: false, stdio: ['ignore', 'pipe', 'pipe'] })
 ```
