@@ -20,6 +20,8 @@ Kill whatever process is using port 8080:
 killport 8080
 ```
 
+Windows users may need to run `Set-ExecutionPolicy Unrestricted` on their terminal to permit the script to run. See [docs](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies) from Microsoft for more information.
+
 Use via `npx` (this will allow you to use it without installing it to your system by downloading it from `npm` temporarily):
 
 ```
