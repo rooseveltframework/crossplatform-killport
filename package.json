@@ -1,0 +1,46 @@
+{
+  "name": "crossplatform-killport",
+  "description": "💀 Kill the process running on a given port in any operating system. ",
+  "author": "Roosevelt Framework Team <rooseveltframework@gmail.com>",
+  "contributors": [
+    {
+      "name": "Contributors",
+      "url": "https://github.com/rooseveltframework/crossplatform-killport/graphs/contributors"
+    }
+  ],
+  "version": "1.0.0",
+  "files": [
+    "killport.js"
+  ],
+  "homepage": "https://github.com/rooseveltframework/crossplatform-killport",
+  "license": "CC-BY-4.0",
+  "main": "killport.js",
+  "bin": {
+    "killport": "killport.js"
+  },
+  "readmeFilename": "README.md",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "standard": "17.1.2"
+  },
+  "scripts": {
+    "lint": "standard",
+    "lint-fix": "standard --fix",
+    "test": "echo \"TODO: tests\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rooseveltframework/crossplatform-killport.git"
+  },
+  "keywords": [
+    "kill",
+    "port",
+    "crossplatform",
+    "process"
+  ],
+  "funding": "https://www.paypal.com/donate/?hosted_button_id=2L2X8GRXZCGJ6"
+}
