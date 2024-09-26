@@ -22,8 +22,6 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "dependencies": {
-  },
   "devDependencies": {
     "standard": "17.1.2"
   },
