@@ -88,7 +88,7 @@ function killProcessOnPort (port) {
   const pid = parseInt(findPidOnPort(port))
   if (pid) {
     try {
-      process.kill(pid, 'SIGTERM')
+      process.kill(pid, 'SIGKILL')
       if (!silent) console.log(`Killed process ${pid} running on port ${port}`)
     } catch (err) {
       if (!silent) console.error(`Error killing process ${pid}: `, err)
