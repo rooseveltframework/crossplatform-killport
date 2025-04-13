@@ -1,9 +1,3 @@
-# crossplatform-killport Changelog
-
-## Next version
-
-- Put your changes here...
-
 ## 1.0.1
 
 - Made the script a bit more aggressive in its attempt to kill the process.
