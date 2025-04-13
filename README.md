@@ -6,5 +6,7 @@ Unlike many of the other programs out there that do this, this one works in Wind
 
 <details open>
   <summary>Documentation</summary>
-  - [Usage](./USAGE.md)
+    <ul>
+      <li><a href="./USAGE.md">Usage</a></li>
+    </ul>
 </details>
