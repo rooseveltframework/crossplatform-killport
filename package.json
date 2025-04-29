@@ -10,7 +10,8 @@
   ],
   "version": "1.0.1",
   "files": [
-    "killport.js"
+    "killport.js",
+    "*.md"
   ],
   "homepage": "https://github.com/rooseveltframework/crossplatform-killport",
   "license": "CC-BY-4.0",
