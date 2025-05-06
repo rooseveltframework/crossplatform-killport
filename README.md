@@ -1,4 +1,4 @@
-[![npm](https://img.shields.io/npm/v/crossplatform-killport.svg)](https://www.npmjs.com/package/crossplatform-killport) 💀 **crossplatform-killport**
+💀 **crossplatform-killport** [![npm](https://img.shields.io/npm/v/crossplatform-killport.svg)](https://www.npmjs.com/package/crossplatform-killport)
 
 Command line program to kill the process running on a given port in any operating system.
 

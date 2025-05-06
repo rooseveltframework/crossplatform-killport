@@ -13,7 +13,7 @@
     "killport.js",
     "*.md"
   ],
-  "homepage": "https://github.com/rooseveltframework/crossplatform-killport",
+  "homepage": "https://rooseveltframework.org/docs/crossplatform-killport/latest",
   "license": "CC-BY-4.0",
   "main": "killport.js",
   "bin": {
