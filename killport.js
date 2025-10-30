@@ -21,15 +21,23 @@ if (isNaN(port)) {
 // function to check if a port is in use
 function checkPort (port, callback) {
   const server = net.createServer()
+  let ipv4Check
 
   server.once('error', (err) => {
     if (err.code === 'EADDRINUSE') callback(null, true) // port is in use
     else callback(err)
   })
 
-  server.once('listening', () => {
-    server.close()
-    callback(null, false) // port is not in use
+  server.on('listening', () => {
+    if (ipv4Check) {
+      server.close()
+      callback(null, false) // port is not in use
+    } else {
+      server.close(() => {
+        ipv4Check = true
+        server.listen(port, '0.0.0.0') // listen on ipv4 addresses
+      })
+    }
   })
 
   server.listen(port)
@@ -63,6 +71,7 @@ function findPidOnPort (port) {
   }
 
   let pid
+  const pids = []
   if (platform === 'win32') {
     // extract PID on windows
     const lines = result.stdout.trim().split('\n')
@@ -76,28 +85,31 @@ function findPidOnPort (port) {
   } else {
     // extract PID on *nix systems
     const lines = result.stdout.trim().split('\n')
-    const parts = lines[lines.length - 1].trim().split(/\s+/)
-    pid = parts[1]
+    for (const line of lines) {
+      const parts = line.trim().split(/\s+/)
+      pid = parseInt(parts[1])
+      if (pid) pids.push(pid)
+    }
   }
 
-  return pid
+  return pids
 }
 
 // function to kill the process running on the given port
 function killProcessOnPort (port) {
-  const pid = parseInt(findPidOnPort(port))
-  if (pid) {
-    try {
-      process.kill(pid, 'SIGKILL')
-      if (!silent) console.log(`Killed process ${pid} running on port ${port}`)
-    } catch (err) {
-      if (!silent) {
-        const error = err.code === 'EPERM' ? 'Permission denied' : err
-        console.error(`Error killing process ${pid}:`, error)
+  const pids = findPidOnPort(port)
+  if (pids) {
+    for (const pid of pids) {
+      try {
+        process.kill(pid, 'SIGKILL')
+        if (!silent) console.log(`Killed process ${pid} running on port ${port}`)
+      } catch (err) {
+        if (!silent) {
+          const error = err.code === 'EPERM' ? 'Permission denied' : err
+          console.error(`Error killing process ${pid}:`, error)
+        }
       }
     }
-  } else {
-    if (!silent) console.log(`No process found running on port ${port}`)
   }
 }
 
