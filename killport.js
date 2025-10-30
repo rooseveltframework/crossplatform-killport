@@ -91,7 +91,10 @@ function killProcessOnPort (port) {
       process.kill(pid, 'SIGKILL')
       if (!silent) console.log(`Killed process ${pid} running on port ${port}`)
     } catch (err) {
-      if (!silent) console.error(`Error killing process ${pid}: `, err)
+      if (!silent) {
+        const error = err.code === 'EPERM' ? 'Permission denied' : err
+        console.error(`Error killing process ${pid}:`, error)
+      }
     }
   } else {
     if (!silent) console.log(`No process found running on port ${port}`)
