@@ -1,6 +1,6 @@
 ## 1.0.2
 
-- The script will now throw a better error when you don't have permission to kill the process
+- The script will now throw a better error when you don't have permission to kill the process.
 
 ## 1.0.1
 
