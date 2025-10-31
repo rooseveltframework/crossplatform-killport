@@ -70,26 +70,19 @@ function findPidOnPort (port) {
     return null
   }
 
-  let pid
   const pids = []
-  if (platform === 'win32') {
-    // extract PID on windows
-    const lines = result.stdout.trim().split('\n')
-    for (const line of lines) {
-      const parts = line.split(/\s+/)
-      if (parts[2] === `0.0.0.0:${port}` && parts[4] === 'LISTENING') {
-        pid = parseInt(parts[5])
-        break
-      }
-    }
-  } else {
-    // extract PID on *nix systems
-    const lines = result.stdout.trim().split('\n')
-    for (const line of lines) {
-      const parts = line.trim().split(/\s+/)
+  const lines = result.stdout.trim().split('\n')
+  for (const line of lines) {
+    let pid
+    const parts = line.trim().split(/\s+/)
+    if (platform === 'win32') {
+      // extract PID on windows
+      if (parts[1] === `0.0.0.0:${port}` && parts[3] === 'LISTENING') pid = parseInt(parts[4])
+    } else {
+      // extract PID on *nix systems
       pid = parseInt(parts[1])
-      if (pid) pids.push(pid)
     }
+    if (pid) pids.push(pid)
   }
 
   return pids
