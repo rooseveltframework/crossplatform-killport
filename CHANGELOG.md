@@ -1,6 +1,6 @@
 ## 1.0.3
 
-- Enhanced the logic to properly handle port termination for both IPv4 and IPv6 addresses.
+- Fixed a bug that caused port detection to not properly handle port termination for both IPv4 and IPv6 addresses.
 - Added functionality that kills all processes associated with the specified open port. Effectively manages scenarios where both IPv4 and IPv6 ports are in use simultaneously.
 
 ## 1.0.2
