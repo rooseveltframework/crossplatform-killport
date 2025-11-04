@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 
 const net = require('net')
+const path = require('path')
 const { spawnSync } = require('child_process')
+const pkg = require(path.join(__dirname, 'package.json'))
 
 // parse command-line arguments
 let silent = false
 for (const arg of process.argv) {
-  if (arg === '--silent') {
-    silent = true
-    break
+  if (arg === '--silent') silent = true
+  if (arg === '-v' || arg === '-version' || arg === '--version') {
+    console.log(pkg.version)
+    process.exit(0)
   }
 }
 
