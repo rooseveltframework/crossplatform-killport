@@ -2,7 +2,7 @@
 
 - Fixed a bug that caused port detection to not properly handle port termination for both IPv4 and IPv6 addresses.
 - Fixed a bug that prevented some processes from being killed.
-- Added -v, -version, --version flags to see version.
+- Added `-v`, `-version`, and `--version` flags to see version.
 - Added tests.
 - Updated dependencies.
 
