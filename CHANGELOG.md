@@ -4,6 +4,7 @@
 - Fixed a bug that prevented some processes from being killed.
 - Added -v, -version, --version flags to see version.
 - Added tests.
+- Updated dependencies.
 
 ## 1.0.2
 
