@@ -1,3 +1,11 @@
+## 1.0.3
+
+- Fixed a bug that caused port detection to not properly handle port termination for both IPv4 and IPv6 addresses.
+- Fixed a bug that prevented some processes from being killed.
+- Added `-v`, `-version`, and `--version` flags to see version.
+- Added tests.
+- Updated dependencies.
+
 ## 1.0.2
 
 - The script will now throw a better error when you don't have permission to kill the process.
