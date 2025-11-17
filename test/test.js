@@ -97,6 +97,22 @@ describe('universal crossplatform-killport tests', () => {
             })
           }
         })
+
+        // specific to linux: when binding an IPv6 socket to ::
+        // when an IPv4 socket is already bound to the same port,
+        // this will lead to a "port already in use" error
+        // in most linux distros by default, triggering the code below.
+        ipv6ServerProcess.stderr.on('data', () => {
+          spawnSync('node', ['killport.js', config.port], {
+            shell: false,
+            stdio: 'pipe'
+          })
+
+          checkPort(config.port, (err, isInUse) => {
+            assert(!err && !isInUse, `Port ${config.port} is still in use`)
+            done()
+          })
+        })
       }
     })
   })
@@ -207,43 +223,23 @@ describe('universal crossplatform-killport tests', () => {
       }
     }
 
-    // make sure nodejs wasn't removed from PATH
+    // get node path
     const nodeArgs = os.platform() === 'win32' ? ['node'] : ['-a', 'node']
     const nodePath = spawnSync(command, nodeArgs, { shell: false })
     const nodePathArr = nodePath.stdout.toString().trim().split('\n')
-    let nodeExists
-    for (let i = 0; i < nodePathArr.length; i++) {
-      const splitNodePath = os.platform() === 'win32' ? nodePathArr[i].split('\\') : nodePathArr[i].split('/')
-      splitNodePath.splice(splitNodePath.length - 1, 1)
-      const joinNodePath = os.platform() === 'win32' ? splitNodePath.join('\\') : splitNodePath.join('/')
-      for (let j = 0; j < splitPath.length; j++) {
-        if (os.platform() === 'win32') {
-          if (splitPath[j].toLowerCase() === joinNodePath.toLowerCase()) {
-            nodeExists = true
-            break
-          }
-        } else {
-          if (splitPath[j] === joinNodePath) {
-            nodeExists = true
-            break
-          }
-        }
-      }
-    }
-    if (!nodeExists) splitPath.push(nodePath[0])
 
     const joinPathNoBin = os.platform() === 'win32' ? splitPath.join(';') : splitPath.join(':')
     process.env.PATH = joinPathNoBin
 
-    const ipv4ServerProcess = spawn('node', ['./test/util/createIpv4Server.js', config.port], {
-      shell: false,
+    const ipv4ServerProcess = spawn(nodePathArr[0], ['./test/util/createIpv4Server.js', config.port], {
+      shell: true,
       stdio: 'pipe'
     })
 
     ipv4ServerProcess.stdout.on('data', (data) => {
       if (data.toString().includes(`IPv4 server is listening on port ${config.port}`)) {
-        const output = spawnSync('node', ['killport.js', config.port], {
-          shell: false,
+        const output = spawnSync(nodePathArr[0], ['killport.js', config.port], {
+          shell: true,
           stdio: 'pipe'
         })
 
