@@ -232,17 +232,15 @@ describe('universal crossplatform-killport tests', () => {
     process.env.PATH = joinPathNoBin
 
     const ipv4ServerProcess = spawn(nodePathArr[0], ['./test/util/createIpv4Server.js', config.port], {
-      shell: false,
-      stdio: 'pipe',
-      windowsVerbatimArguments: true
+      shell: true,
+      stdio: 'pipe'
     })
 
     ipv4ServerProcess.stdout.on('data', (data) => {
       if (data.toString().includes(`IPv4 server is listening on port ${config.port}`)) {
         const output = spawnSync(nodePathArr[0], ['killport.js', config.port], {
-          shell: false,
-          stdio: 'pipe',
-          windowsVerbatimArguments: true
+          shell: true,
+          stdio: 'pipe'
         })
 
         assert(output.stderr && output.stderr.toString().includes(`Error finding process on port ${config.port}`), 'No error thrown when attempting to close port')
