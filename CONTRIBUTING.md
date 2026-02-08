@@ -1,0 +1,18 @@
+# How to contribute
+
+## Before opening a pull request
+
+- Add your changes to `CHANGELOG.md`.
+
+## Release process
+
+If you are a maintainer, please follow the following release procedure:
+
+- Merge all desired pull requests into main.
+- Bump `package.json` to a new version and run `npm i` to generate a new `package-lock.json`.
+- Add new version to CHANGELOG.
+- Paste contents of CHANGELOG into new version commit.
+- Open and merge a pull request with those changes.
+- Tag the merge commit as the a new release version number.
+- Publish commit to npm.
+- Submit a pull request to the Roosevelt website [following the instructions here](https://github.com/rooseveltframework/roosevelt-website/blob/main/CONTRIBUTING.md).
