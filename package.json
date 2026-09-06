@@ -8,7 +8,7 @@
       "url": "https://github.com/rooseveltframework/crossplatform-killport/graphs/contributors"
     }
   ],
-  "version": "1.0.3",
+  "version": "1.0.4",
   "files": [
     "killport.js",
     "*.md"
@@ -21,18 +21,16 @@
   },
   "readmeFilename": "README.md",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "devDependencies": {
-    "c8": "12.0.0",
-    "mocha": "11.8.0",
     "standard": "17.1.2"
   },
   "scripts": {
-    "coverage": "c8 --reporter=text --reporter=lcov mocha --timeout 60000 test/*.js --test",
+    "coverage": "node -e \"require('node:fs').mkdirSync('coverage', { recursive: true })\" && node --test --experimental-test-coverage --test-coverage-include=killport.js --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info test/test.js",
     "lint": "standard",
     "lint-fix": "standard --fix",
-    "test": "mocha --timeout 60000 test/*.js"
+    "test": "node --test test/test.js"
   },
   "repository": {
     "type": "git",

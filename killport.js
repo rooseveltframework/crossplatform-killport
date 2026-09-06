@@ -1,119 +1,116 @@
 #!/usr/bin/env node
 
-const net = require('net')
-const path = require('path')
-const { spawnSync } = require('child_process')
-const pkg = require(path.join(__dirname, 'package.json'))
+const net = require('node:net')
+const { spawnSync } = require('node:child_process')
+const pkg = require('./package.json')
 
 // parse command-line arguments
 let silent = false
-for (const arg of process.argv) {
+let portArg
+for (const arg of process.argv.slice(2)) {
   if (arg === '--silent') silent = true
-  if (arg === '-v' || arg === '-version' || arg === '--version') {
+  else if (arg === '-v' || arg === '-version' || arg === '--version') {
     console.log(pkg.version)
     process.exit(0)
-  }
+  } else if (portArg === undefined) portArg = arg
 }
 
-const port = parseInt(process.argv[2], 10)
-if (isNaN(port)) {
+const port = Number(portArg)
+if (!Number.isInteger(port) || port < 1 || port > 65535) {
   console.error('Please provide a valid port number.')
   process.exit(1)
 }
 
-// function to check if a port is in use
-function checkPort (port, callback) {
-  const server = net.createServer()
-  let ipv4Check
+// resolves true if the port is in use on either ipv6 or ipv4
+function checkPort (port) {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer()
+    let ipv4Check
 
-  server.once('error', (err) => {
-    if (err.code === 'EADDRINUSE') callback(null, true) // port is in use
-    else callback(err)
+    server.once('error', (err) => {
+      if (err.code === 'EADDRINUSE') resolve(true) // port is in use
+      else reject(err)
+    })
+
+    server.on('listening', () => {
+      if (ipv4Check) {
+        server.close()
+        resolve(false) // port is not in use
+      } else {
+        server.close(() => {
+          ipv4Check = true
+          server.listen(port, '0.0.0.0') // listen on ipv4 addresses
+        })
+      }
+    })
+
+    server.listen(port)
   })
-
-  server.on('listening', () => {
-    if (ipv4Check) {
-      server.close()
-      callback(null, false) // port is not in use
-    } else {
-      server.close(() => {
-        ipv4Check = true
-        server.listen(port, '0.0.0.0') // listen on ipv4 addresses
-      })
-    }
-  })
-
-  server.listen(port)
 }
 
-// function to find the PID of the process running on the given port
-function findPidOnPort (port) {
-  const platform = process.platform
-  let command, args
+// function to find the PIDs of the processes running on the given port
+function findPidsOnPort (port) {
+  const windows = process.platform === 'win32'
 
-  if (platform === 'win32') {
-    // windows command to find the PID
-    command = 'netstat'
-    args = ['-ano']
-  } else {
-    // *nix command to find the PID
-    command = 'lsof'
-    args = ['-i', `:${port}`]
-  }
-
+  // windows finds the PID with netstat, *nix systems with lsof
+  const command = windows ? 'netstat' : 'lsof'
+  const args = windows ? ['-ano'] : ['-i', `:${port}`]
   const result = spawnSync(command, args, { encoding: 'utf8', shell: false })
 
   if (result.error) {
     if (!silent) console.error(`Error finding process on port ${port}: `, result.error)
-    return null
+    return []
   }
 
   if (!result.stdout) {
     if (!silent) console.log(`No process found running on port ${port}`)
-    return null
+    return []
   }
 
-  const pids = []
-  const lines = result.stdout.trim().split('\n')
-  for (const line of lines) {
-    let pid
+  const pids = new Set()
+  for (const line of result.stdout.trim().split('\n')) {
     const parts = line.trim().split(/\s+/)
-    if (platform === 'win32') {
-      // extract PID on windows
-      if (parts[1] === `0.0.0.0:${port}` && parts[3] === 'LISTENING') pid = parseInt(parts[4])
+    let pid
+    if (windows) {
+      // netstat columns are: proto, local address, foreign address, state, PID.
+      // matching on the local address by port covers every address a process can
+      // be listening on, e.g. 0.0.0.0, [::], or 127.0.0.1
+      if (parts[3] === 'LISTENING' && parts[1].endsWith(`:${port}`)) pid = parseInt(parts[4], 10)
     } else {
-      // extract PID on *nix systems
-      pid = parseInt(parts[1])
+      // lsof columns are: command, PID, ...; the header row parses to NaN and is skipped
+      pid = parseInt(parts[1], 10)
     }
-    if (pid) pids.push(pid)
+    if (pid) pids.add(pid)
   }
 
-  return pids
+  return [...pids]
 }
 
-// function to kill the process running on the given port
+// function to kill the processes running on the given port
 function killProcessOnPort (port) {
-  const pids = findPidOnPort(port)
-  if (pids) {
-    for (const pid of pids) {
-      try {
-        process.kill(pid, 'SIGKILL')
-        if (!silent) console.log(`Killed process ${pid} running on port ${port}`)
-      } catch (err) {
-        if (!silent) {
-          const error = err.code === 'EPERM' ? 'Permission denied' : err
-          console.error(`Error killing process ${pid}:`, error)
-        }
+  for (const pid of findPidsOnPort(port)) {
+    try {
+      process.kill(pid, 'SIGKILL')
+      if (!silent) console.log(`Killed process ${pid} running on port ${port}`)
+    } catch (err) {
+      if (!silent) {
+        const error = err.code === 'EPERM' ? 'Permission denied' : err
+        console.error(`Error killing process ${pid}:`, error)
       }
     }
   }
 }
 
 // check if the port is in use and kill the process if it is
-checkPort(port, (err, isInUse) => {
-  if (err && !silent) console.error('Error checking port: ', err)
-  else if (isInUse) {
-    if (!silent) console.log(`Port ${port} is in use. Attempting to kill the process...`)
-    killProcessOnPort(port)
-  } else if (!silent) console.log(`Port ${port} is available.`)
-})
+async function killport () {
+  try {
+    if (await checkPort(port)) {
+      if (!silent) console.log(`Port ${port} is in use. Attempting to kill the process...`)
+      killProcessOnPort(port)
+    } else if (!silent) console.log(`Port ${port} is available.`)
+  } catch (err) {
+    if (!silent) console.error('Error checking port: ', err)
+  }
+}
+
+killport()
