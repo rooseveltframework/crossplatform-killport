@@ -1,27 +1,11 @@
-const childProcess = require('child_process')
-const path = require('path')
+// makes the port lookup come back empty so killport reports that it found no process.
+// the stubs below are never restored because this process exits once killport is done
+const childProcess = require('node:child_process')
 
-async function noProcessFound () {
-  // override original spawnSync
-  const originalSpawnSync = childProcess.spawnSync
-  const customSpawnSyncHandler = (command, args, options) => {
-    if (command === 'lsof' || command === 'netstat') {
-      return {
-        stdout: ''
-      }
-    }
-    return originalSpawnSync(command, args, options)
-  }
-  Object.defineProperty(childProcess, 'spawnSync', {
-    value: customSpawnSyncHandler,
-    writable: true
-  })
-
-  await require(path.join(__dirname, '../../killport.js'))
-
-  Object.defineProperty(childProcess, 'spawnSync', {
-    value: originalSpawnSync,
-    writable: true
-  })
+const originalSpawnSync = childProcess.spawnSync
+childProcess.spawnSync = (command, args, options) => {
+  if (command === 'lsof' || command === 'netstat') return { stdout: '' }
+  return originalSpawnSync(command, args, options)
 }
-noProcessFound()
+
+require('../../killport.js')
